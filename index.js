@@ -1,10 +1,16 @@
 const API = "https://api.github.com";
 const form = document.querySelector(".form")
 const cardPublish = document.querySelector(".publish-container")
-const message = "404 (Not Found)"
-const controller = action => fetch(action)
-    .then(data => data.json())
-    //.catch(error => document.write(error.message))
+
+const controller = (action, collbak) => fetch(action)
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => collbak(data))
+    .catch(error => alert(error))
 
 form.addEventListener("submit", e => {
     e.preventDefault()
@@ -12,22 +18,14 @@ form.addEventListener("submit", e => {
     function getUser() {
         const inputValue = document.getElementById("username").value;
         console.log(inputValue)
-        controller(`${API}/users/${inputValue}`)
-            .then(data => showUser(data))
-            .catch(error => alert(error.message))
+        controller(`${API}/users/${inputValue}`, showUser)
     }
 
     getUser()
 })
 
-// функция первая буква заглавная
-function ucFirst(str) {
-    if (!str) return str;
-    return str[0].toUpperCase() + str.slice(1);
-}
-
 function showUser(user) {
-    // создаем елементы
+    cardPublish.innerHTML = "";
     const userName = document.createElement("h3");
     const userAvatar = document.createElement("img");
     const userPublic = document.createElement("p");
@@ -51,6 +49,7 @@ function showUser(user) {
     cardPublish.append(userPublic)
     cardPublish.append(userFollowers)
     cardPublish.append(userFollowing)
+
 }
 
 
